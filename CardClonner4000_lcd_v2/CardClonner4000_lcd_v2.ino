@@ -60,13 +60,13 @@ void loop()
 
   //If button pressed...
   if (buttonStateRead == LOW) { 
-       Serial.println("read metka!");
+       //Serial.println("read metka!");
        //read_metka();
        read_metka(buffer_uid);//Read(10, buffer);
     }    
 
 if (buttonStateWrite == LOW) { 
-       Serial.println("write metka!");
+       //Serial.println("write metka!");
        write_metka(buffer_uid);
     }    
 
@@ -90,20 +90,19 @@ byte  *read_metka(byte *metka_tag)
     return;
   }
   //Show UID on serial monitor
-  Serial.print("UID tag :");
+  //Serial.print("UID tag :");
   String content= "";
-  //byte newUid[4]= {};
   
   for (byte i = 0; i < mfrc522.uid.size; i++) 
   {
-     Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
-     Serial.print(mfrc522.uid.uidByte[i], HEX);
+     //Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
+     //Serial.print(mfrc522.uid.uidByte[i], HEX);
      content.concat(String(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " "));
      content.concat(String(mfrc522.uid.uidByte[i], HEX));
      metka_tag[i]=mfrc522.uid.uidByte[i];
   }
   //
-  Serial.println();
+  /*Serial.println();
   Serial.print("newuid: ");
   for (byte i = 0; i <4; i++) 
    {
@@ -112,9 +111,9 @@ byte  *read_metka(byte *metka_tag)
    }
   //
   Serial.println();
-  Serial.print("Message : ");
+  Serial.print("Message : ");*/
   content.toUpperCase();
-  Serial.println(content);
+  //Serial.println(content);
   lcd.display();//включение дисплея
   lcd.backlight(); // включение подсветки дисплея
   lcd.setCursor(0,0);//курсор в положение 0 0
@@ -130,10 +129,19 @@ byte  *read_metka(byte *metka_tag)
 
 void write_metka(byte rfid_uid[4])
 {
+  lcd.display();//включение дисплея
+  lcd.backlight(); // включение подсветки дисплея
+  lcd.setCursor(0,0);//курсор в положение 0 0
+  lcd.print("Ready to write!");// печатаем авторизован на экране
+  lcd.setCursor(0,1);//курсор на 2 строку дисплея
+  
   //byte newUid[4] = mfrc522.uid;
   if ( mfrc522Hack.MIFARE_SetUid(rfid_uid, (byte)4, true) ) {
-    Serial.println(F("Wrote new UID to card."));
+        lcd.print("Wrote new UID");
   }
+  delay(3000);
+  lcd.noBacklight();//выключить подсветку
+  lcd.clear();//очистка дисплея
   
   // Halt PICC and re-select it so DumpToSerial doesn't get confused
   mfrc522.PICC_HaltA();
