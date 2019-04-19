@@ -3,16 +3,19 @@
 #define pin 10
 OneWire ibutton (pin); // Пин D11 для подлючения iButton (Data)
 byte addr[8];
-byte ReadID[8] = { 0x01, 0xA6, 0xE1, 0x01, 0x00, 0x00, 0x00, 0x4B }; // "Универсальный" ключ. Прошивается последовательность 01:FF:FF:FF:FF:FF:FF:2F
+byte ReadID[8] = { 0x01, 0xA6, 0xE1, 0x01, 0x00, 0x00, 0x00, 0x4B }; // "Уссурийский" ключ. Прошивается последовательность 01:A6:E1:01:00:00:00:4B
+//byte ReadID[8] = { 0x01, 0xA6, 0xE1, 0x01, 0x00, 0x00, 0x00, 0x4B }; // "Универсальный" ключ. Прошивается последовательность 01:FF:FF:FF:FF:FF:FF:2F
 
 const int buttonPin = 4;
-const int ledPin = 8;
+const int ledRedPin = 8;
+const int ledGreenPin = 7;
 int buttonState = 0;
 int writeflag = 0;
 int readflag = 0;
 
 void setup() {
-  pinMode(ledPin, OUTPUT);
+  pinMode(ledRedPin, OUTPUT);
+  pinMode(ledGreenPin, OUTPUT);
   pinMode(buttonPin, INPUT);
   Serial.begin(9600);
 }
@@ -20,18 +23,22 @@ void setup() {
 void loop() {
 
   buttonState = digitalRead(buttonPin);
+  Serial.print("buttonState: ");
+  Serial.println(buttonState);
   if (buttonState == HIGH) {
     readflag = 1;
     writeflag = 1;
-    digitalWrite(ledPin, HIGH);
+    digitalWrite(ledRedPin, HIGH);
+    ///
+    digitalWrite(ledGreenPin, HIGH);
   }
   if (!ibutton.search (addr)) {
     ibutton.reset_search();
     delay(50);
-    return;
+    return;`
   }
 
-  digitalWrite(ledPin, HIGH);
+  digitalWrite(ledRedPin, HIGH);
   delay(50);
 
   for (byte x = 0; x < 8; x++) {
@@ -46,7 +53,7 @@ void loop() {
   crc = ibutton.crc8(addr, 7);
   Serial.print("CRC: ");
   Serial.println(crc, HEX);
-  digitalWrite(ledPin, LOW);
+  digitalWrite(ledRedPin, LOW);
 
   if ((writeflag == 1) or (Serial.read() == 'w')) {
     ibutton.skip(); ibutton.reset(); ibutton.write(0x33);
@@ -83,7 +90,7 @@ void loop() {
     pinMode(pin, INPUT); digitalWrite(pin, HIGH); delay(10);
     writeflag = 0;
     readflag = 0;
-    digitalWrite(ledPin, LOW);
+    digitalWrite(ledRedPin, LOW);
   }
 }
 
